@@ -12,7 +12,7 @@
   "dependencies": {
     "leaflet": "^1.5.1",
     "leaflet-rastercoords": "^1.0.3",
-    "oakwood": "^2.1.1",
+    "oakwood": "^2.2.0",
     "serve-handler": "^6.1.1",
     "ws": "^7.1.2"
   }
