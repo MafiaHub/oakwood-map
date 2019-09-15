@@ -1,6 +1,10 @@
 # oakwood-map
 A tiny resource with webmap displaying player positions
 
+![](https://user-images.githubusercontent.com/2182108/64923695-10273b80-d7e5-11e9-9453-bffd0c3c1261.png)
+
+Any improvements or suggestions in forms pull requests or issues are highly appreciated.
+
 ## Instructions
 
 1. Clone the repo
