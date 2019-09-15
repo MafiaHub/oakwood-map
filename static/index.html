@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <title>Oakwood: Real-time map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-rastercoords@1.0.3/rastercoords.js" crossorigin=""></script>
+
+    <style type="text/css">html, body {margin:0;padding:0;height:100%;}</style>
+</head>
+<body>
+
+<div id="mapid" style="width: 100%; height: 100%;"></div>
+<script>
+        let con = new WebSocket('ws://localhost:8081')
+
+        let markers = {} /* storage for player markers */
+        let img = [ 3263, 3263 ] /* physical base image size */
+
+        /* hacky function to transform game coords to map coords */
+        /* any suggestion on improving is highly appreciated */
+        const transform = (rcs, pos) => {
+            return rcs.unproject([pos[0]/1.66+2410, -pos[1]/1.91+2172])
+        }
+
+        let map = L.map('mapid').setView([0, 0], 3)
+        let rcs = new L.RasterCoords(map, img)
+
+        con.onmessage = (e) => {
+            const {type, pid, name, pos} = JSON.parse(e.data)
+
+            if (type == 'playerConnect' || !markers.hasOwnProperty(pid)) {
+                markers[pid] = L
+                    .marker(transform(rcs, [pos[0], pos[2]]))
+                    .bindTooltip(`[${pid}]${name} - (X: ${pos[0].toFixed(2)}, Y: ${pos[2].toFixed(2)})`)
+                    .addTo(map)
+            } else if (type == 'playerUpdate') {
+                markers[pid].setLatLng(transform(rcs, [pos[0], pos[2]]))
+            } else if (type == 'playerDisconnect') {
+                markers[pid].remove()
+            }
+        }
+
+        con.onopen = () => console.log('[info] connection opened')
+        con.onclose = () => console.log('[info] connection closed, reconnecting...')
+        con.onerror = (error) => console.log('[info] connection error:', error)
+
+        L.tileLayer('/tiles/{z}/{x}/{y}.png', {
+            maxZoom: 5,
+            noWrap: true,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox.streets'
+        }).addTo(map);
+
+</script>
+
+</body>
+</html>

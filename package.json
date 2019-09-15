@@ -1,0 +1,19 @@
+{
+  "name": "oakwood-map",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "leaflet": "^1.5.1",
+    "leaflet-rastercoords": "^1.0.3",
+    "oakwood": "^2.1.1",
+    "serve-handler": "^6.1.1",
+    "ws": "^7.1.2"
+  }
+}
